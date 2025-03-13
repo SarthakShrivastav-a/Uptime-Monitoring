@@ -16,6 +16,5 @@ public class User {
     private String firstName;
     private String lastName;
     private String company;
-    private String phone;
     private Instant createdAt = Instant.now();
 }
