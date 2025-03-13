@@ -16,11 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/test")
 public class TestDomainInfo {
 
-    private final DomainInfoService domainInfoService;
-
-    public TestDomainInfo(DomainInfoService domainInfoService) {
-        this.domainInfoService = domainInfoService;
-    }
+    @Autowired
+    DomainInfoService domainInfoService;
     @Autowired
     private  SSLInfoService sslInfoService;
 
