@@ -4,51 +4,50 @@ import com.product.uptime.entity.*;
 import com.product.uptime.repository.MonitorRepository;
 import com.product.uptime.repository.MonitorStatusRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+@Service
 public class MonitorService {
 
-    @Service
-    @RequiredArgsConstructor
-    public class MonitorService {
+    @Autowired
+    private MonitorRepository monitorRepository;
+    @Autowired
+    private  MonitorStatusRepository monitorStatusRepository;
+    @Autowired
+    private  SSLInfoService sslInfoService;
+    @Autowired
+    private  DomainInfoService domainInfoService;
 
-        private final MonitorRepository monitorRepository;
-        private final MonitorStatusRepository monitorStatusRepository;
-        private final SSLInfoService sslInfoService;
-        private final DomainInfoService domainInfoService;
-        private final ExecutorService executorService = Executors.newFixedThreadPool(5); // For async execution
+    private final ExecutorService executorService = Executors.newFixedThreadPool(5);
 
-        public Monitor createMonitor(String userId, String url, ErrorCondition errorCondition) {
-            // 1️⃣ Create & Save Monitor Entry
-            Monitor monitor = new Monitor();
-            monitor.setUserId(userId);
-            monitor.setUrl(url);
-            monitor.setErrorCondition(errorCondition);
-            monitor.setCreatedAt(Instant.now());
+    public Monitor createMonitor(String userId, String url, ErrorCondition errorCondition) {
+        Monitor monitor = new Monitor();
+        monitor.setUserId(userId);
+        monitor.setUrl(url);
+        monitor.setErrorCondition(errorCondition);
+        monitor.setCreatedAt(Instant.now());
 
-            monitor = monitorRepository.save(monitor);
+        monitor = monitorRepository.save(monitor);
+            
+        MonitorStatus monitorStatus = new MonitorStatus();
+        monitorStatus.setMonitorId(monitor.getId());
+        monitorStatus.setStatus("UNKNOWN");
+        monitorStatus.setUptime(0.0);
+        monitorStatus.setDowntime(0);
+        monitorStatus.setLastChecked(Instant.now());
 
-            // 2️⃣ Create & Save Initial MonitorStatus Entry
-            MonitorStatus monitorStatus = new MonitorStatus();
-            monitorStatus.setMonitorId(monitor.getId());
-            monitorStatus.setStatus("UNKNOWN"); // Default state before monitoring starts
-            monitorStatus.setUptime(0.0);
-            monitorStatus.setDowntime(0);
-            monitorStatus.setLastChecked(Instant.now());
+        monitorStatusRepository.save(monitorStatus);
 
-            monitorStatusRepository.save(monitorStatus);
+        Monitor finalMonitor = monitor;
+        executorService.submit(() -> updateMonitorSSLAndDomain(finalMonitor));
 
-            // 3️⃣ Fetch SSL & Domain Info Asynchronously
-            Monitor finalMonitor = monitor;
-            executorService.submit(() -> updateMonitorSSLAndDomain(finalMonitor));
-
-            return monitor;
+        return monitor;
         }
-
         private void updateMonitorSSLAndDomain(Monitor monitor) {
             try {
                 SSLInfo sslInfo = sslInfoService.getSSLInfo(monitor.getUrl());
@@ -62,5 +61,3 @@ public class MonitorService {
             }
         }
     }
-
-}

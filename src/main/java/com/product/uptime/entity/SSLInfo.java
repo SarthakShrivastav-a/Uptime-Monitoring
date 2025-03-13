@@ -10,7 +10,7 @@ import java.time.Instant;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-class SSLInfo {
+public class SSLInfo {
     private String certificateIssuer;
     private Instant certificateExpiry;
     private int daysLeft;

@@ -6,9 +6,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+
 public class DomainInfo {
     private Instant domainExpiry;
     private int daysLeft;
