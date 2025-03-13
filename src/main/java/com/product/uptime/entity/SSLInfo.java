@@ -15,4 +15,6 @@ class SSLInfo {
     private Instant certificateExpiry;
     private int daysLeft;
     private String status; // VALID/EXPIRING/EXPIRED
+
+
 }
