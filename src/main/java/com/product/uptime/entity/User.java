@@ -13,6 +13,7 @@ public class User {
     @Id
     private String id;
     private String authUserId;
+    private String email;
     private String firstName;
     private String lastName;
     private String company;
@@ -64,5 +65,13 @@ public class User {
 
     public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

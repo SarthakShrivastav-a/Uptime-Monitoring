@@ -17,13 +17,7 @@ public class Monitor {
     private String id;
     private String userId;
     private String url;
-
     private ErrorCondition errorCondition;
-    private String status;
-    private double uptime;
-    private int downtime;
-    private Instant lastChecked;
-
     private SSLInfo sslInfo;
     private DomainInfo domainInfo;
     private Instant createdAt = Instant.now();
@@ -58,38 +52,6 @@ public class Monitor {
 
     public void setErrorCondition(ErrorCondition errorCondition) {
         this.errorCondition = errorCondition;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public double getUptime() {
-        return uptime;
-    }
-
-    public void setUptime(double uptime) {
-        this.uptime = uptime;
-    }
-
-    public int getDowntime() {
-        return downtime;
-    }
-
-    public void setDowntime(int downtime) {
-        this.downtime = downtime;
-    }
-
-    public Instant getLastChecked() {
-        return lastChecked;
-    }
-
-    public void setLastChecked(Instant lastChecked) {
-        this.lastChecked = lastChecked;
     }
 
     public SSLInfo getSslInfo() {

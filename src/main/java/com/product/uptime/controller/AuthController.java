@@ -2,6 +2,7 @@ package com.product.uptime.controller;
 
 
 import com.product.uptime.entity.AuthUser;
+import com.product.uptime.entity.LoginRequest;
 import com.product.uptime.entity.SignUp;
 import com.product.uptime.entity.User;
 import com.product.uptime.jwt.JwtUtility;
@@ -44,30 +45,30 @@ public class AuthController {
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
-//    @PostMapping("/signin")
-//    public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
-//        logger.info("Login attempt for user: {}", loginRequest.getEmail());
-//
-//        try {
-//            Authentication authentication = authenticationManager.authenticate(
-//                    new UsernamePasswordAuthenticationToken(
-//                            loginRequest.getEmail(),
-//                            loginRequest.getPassword()
-//                    )
-//            );
-//
-//            SecurityContextHolder.getContext().setAuthentication(authentication);
-//            String jwt = jwtUtility.generateTokenFromUsername(
-//                    ((UserDetails) authentication.getPrincipal()));
-//
-//            logger.info("User {} successfully authenticated, JWT generated.", loginRequest.getEmail());
-//            return ResponseEntity.ok(jwt);
-//
-//        } catch (Exception e) {
-//            logger.error("Authentication failed for user {}: {}", loginRequest.getEmail(), e.getMessage());
-//            return ResponseEntity.badRequest().body("Invalid username or password");
-//        }
-//    }
+    @PostMapping("/signin")
+    public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
+        logger.info("Login attempt for user: {}", loginRequest.getEmail());
+
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            loginRequest.getEmail(),
+                            loginRequest.getPassword()
+                    )
+            );
+
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            String jwt = jwtUtility.generateTokenFromUsername(
+                    ((UserDetails) authentication.getPrincipal()));
+
+            logger.info("User {} successfully authenticated, JWT generated.", loginRequest.getEmail());
+            return ResponseEntity.ok(jwt);
+
+        } catch (Exception e) {
+            logger.error("Authentication failed for user {}: {}", loginRequest.getEmail(), e.getMessage());
+            return ResponseEntity.badRequest().body("Invalid username or password");
+        }
+    }
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody SignUp signUp) {
