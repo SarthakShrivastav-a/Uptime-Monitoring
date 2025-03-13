@@ -29,4 +29,27 @@ public class SignUp {
 
     private String companyName;
 
+    public @NotBlank(message = "First name is required") String getFirstName() {
+        return firstName;
+    }
+
+    public @NotBlank(message = "Last name is required") String getLastName() {
+        return lastName;
+    }
+
+    public @NotBlank(message = "Email is required") @Email(message = "Invalid email format") String getEmail() {
+        return email;
+    }
+
+    public @NotBlank(message = "Password is required") @Size(min = 8, message = "Password must be at least 8 characters long") String getPassword() {
+        return password;
+    }
+
+    public @NotBlank(message = "Confirm password is required") String getConfirmPassword() {
+        return confirmPassword;
+    }
+
+    public String getCompanyName() {
+        return companyName;
+    }
 }
