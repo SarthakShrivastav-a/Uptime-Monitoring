@@ -1,15 +1,11 @@
 package com.product.uptime.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.time.Instant;
 
 
 public class DomainInfo {
     private Instant domainExpiry;
-    private int daysLeft;
+    private Instant remindingDate;
     private String status; // ACTIVE/EXPIRING/EXPIRED
 
     public Instant getDomainExpiry() {
@@ -20,12 +16,12 @@ public class DomainInfo {
         this.domainExpiry = domainExpiry;
     }
 
-    public int getDaysLeft() {
-        return daysLeft;
+    public Instant getRemindingDate() {
+        return remindingDate;
     }
 
-    public void setDaysLeft(int daysLeft) {
-        this.daysLeft = daysLeft;
+    public void setRemindingDate(Instant remindingDate) {
+        this.remindingDate = remindingDate;
     }
 
     public String getStatus() {

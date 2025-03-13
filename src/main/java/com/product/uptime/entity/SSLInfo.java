@@ -7,13 +7,11 @@ import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+
 public class SSLInfo {
     private String certificateIssuer;
     private Instant certificateExpiry;
-    private int daysLeft;
+    private Instant remindingDate;
     private String status; // VALID/EXPIRING/EXPIRED
 
     public String getCertificateIssuer() {
@@ -32,12 +30,12 @@ public class SSLInfo {
         this.certificateExpiry = certificateExpiry;
     }
 
-    public int getDaysLeft() {
-        return daysLeft;
+    public Instant getRemindingDate() {
+        return remindingDate;
     }
 
-    public void setDaysLeft(int daysLeft) {
-        this.daysLeft = daysLeft;
+    public void setRemindingDate(Instant remindingDate) {
+        this.remindingDate = remindingDate;
     }
 
     public String getStatus() {

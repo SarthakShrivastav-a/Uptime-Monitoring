@@ -7,6 +7,8 @@ import javax.net.ssl.HttpsURLConnection;
 import java.net.URL;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
 @Service
@@ -21,11 +23,25 @@ public class SSLInfoService {
 
             for (Certificate cert : certs) {
                 if (cert instanceof X509Certificate) {
-                    X509Certificate x509Cert = (X509Certificate) cert;
-                    Date expiryDate = x509Cert.getNotAfter();
-                    conn.disconnect();
+                    X509Certificate x509Certificate = (X509Certificate) cert;
+                    Date expiryDate = x509Certificate.getNotAfter();
+                    Instant expiryInstant = expiryDate.toInstant();
+                    Instant reminderDate = expiryInstant.minus(30, ChronoUnit.DAYS);
+                    Instant currentDate = Instant.now();
                     SSLInfo sslInfo = new SSLInfo();
-                    sslInfo.setCertificateExpiry(expiryDate.toInstant());
+                    sslInfo.setCertificateExpiry(expiryInstant);
+                    sslInfo.setRemindingDate(reminderDate);
+                    sslInfo.setCertificateIssuer(x509Certificate.getIssuerX500Principal().getName());
+
+                    if (currentDate.isBefore(reminderDate)) {
+                        sslInfo.setStatus("VALID");
+                    } else if (currentDate.isBefore(expiryInstant)) {
+                        sslInfo.setStatus("EXPIRING SOON");
+                    } else {
+                        sslInfo.setStatus("EXPIRED");
+                    }
+
+                    conn.disconnect();
                     return sslInfo;
                 }
             }
