@@ -16,6 +16,6 @@ public class AuthUser {
     private String id;
     private String email;
     private String password;
-    private List<String> roles;
+    private String role;
     private Instant createdAt = Instant.now();
 }
