@@ -9,7 +9,7 @@ import java.time.Instant;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-class DomainInfo {
+public class DomainInfo {
     private Instant domainExpiry;
     private int daysLeft;
     private String status; // ACTIVE/EXPIRING/EXPIRED
