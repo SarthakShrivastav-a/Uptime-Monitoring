@@ -90,6 +90,7 @@ public class AuthController {
         user.setAuthUserId(authUser.getId());
         user.setFirstName(signUp.getFirstName());
         user.setLastName(signUp.getLastName());
+        user.setEmail(signUp.getEmail());
         user.setCompany(signUp.getCompanyName());
 
         userRepository.save(user);
