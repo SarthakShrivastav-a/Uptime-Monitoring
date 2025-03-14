@@ -1,4 +1,4 @@
-package com.product.uptime.entity;
+package com.product.uptime.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

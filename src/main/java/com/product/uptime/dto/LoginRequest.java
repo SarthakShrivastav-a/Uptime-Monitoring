@@ -1,4 +1,4 @@
-package com.product.uptime.entity;
+package com.product.uptime.dto;
 
 import lombok.Getter;
 

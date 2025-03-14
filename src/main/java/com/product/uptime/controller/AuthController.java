@@ -2,8 +2,8 @@ package com.product.uptime.controller;
 
 
 import com.product.uptime.entity.AuthUser;
-import com.product.uptime.entity.LoginRequest;
-import com.product.uptime.entity.SignUp;
+import com.product.uptime.dto.LoginRequest;
+import com.product.uptime.dto.SignUp;
 import com.product.uptime.entity.User;
 import com.product.uptime.jwt.JwtUtility;
 import com.product.uptime.repository.AuthUserRepository;
@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -83,9 +82,7 @@ public class AuthController {
         authUser.setEmail(signUp.getEmail());
         authUser.setPassword(encodedPassword);
         authUser.setRole("USER");
-
         authUser = authUserRepository.save(authUser);
-
         User user = new User();
         user.setAuthUserId(authUser.getId());
         user.setFirstName(signUp.getFirstName());
