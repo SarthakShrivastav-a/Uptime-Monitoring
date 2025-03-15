@@ -9,8 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
 
 @RestController
 @RequestMapping("/api/test")
@@ -19,7 +19,8 @@ public class TestDomainInfo {
     @Autowired
     DomainInfoService domainInfoService;
     @Autowired
-    private  SSLInfoService sslInfoService;
+    private SSLInfoService sslInfoService;
+
 
     @GetMapping("/domain-info")
     public ResponseEntity<?> getDomainInfo() {
@@ -32,6 +33,7 @@ public class TestDomainInfo {
             return new ResponseEntity<>("Failed to fetch domain info.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
     @GetMapping("/check")
     public ResponseEntity<SSLInfo> checkSSLInfo() {
 
@@ -44,4 +46,10 @@ public class TestDomainInfo {
 
         return ResponseEntity.ok(sslInfo);
     }
+//    @GetMapping("/check1")
+//    public String check() {
+//        String responseFromGoServer = postService.sendRequestToGoServer();
+//        System.out.println("Response from Go server: " + responseFromGoServer);
+//        return "Entry creation result: " + responseFromGoServer;
+//    }
 }

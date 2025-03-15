@@ -22,6 +22,8 @@ public class MonitorService {
     private  SSLInfoService sslInfoService;
     @Autowired
     private  DomainInfoService domainInfoService;
+    @Autowired
+    private PostService postService;
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(5);
 
@@ -41,11 +43,11 @@ public class MonitorService {
         monitorStatus.setDowntime(0);
         monitorStatus.setLastChecked(Instant.now());
 
-        monitorStatusRepository.save(monitorStatus);
+        MonitorStatus mon = monitorStatusRepository.save(monitorStatus);
 
         Monitor finalMonitor = monitor;
         executorService.submit(() -> updateMonitorSSLAndDomain(finalMonitor));
-
+        postService.sendPostRequest(mon.getId(),monitor.getUrl(),monitor.getErrorCondition());
         return monitor;
         }
         private void updateMonitorSSLAndDomain(Monitor monitor) {
