@@ -1,8 +1,9 @@
 package com.product.uptime.controller;
 
 import com.product.uptime.entity.MonitorStatus;
-import com.product.uptime.entity.MonitorStatusUpdate;
+import com.product.uptime.dto.MonitorStatusUpdate;
 import com.product.uptime.repository.MonitorStatusRepository;
+import com.product.uptime.service.MonitorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,20 +16,13 @@ import java.util.Optional;
 @RequestMapping("/private")
 public class UpdateStatusController {
 
-    @Autowired
-    MonitorStatusRepository monitorStatusRepository;
-    @PostMapping("/update")
-    public String updateMonitorStatus(@RequestBody MonitorStatusUpdate request) {
-        Optional<MonitorStatus> monitorOptional = monitorStatusRepository.findById(request.getMonitorId());
 
-        if (monitorOptional.isPresent()) {
-            MonitorStatus monitor = monitorOptional.get();
-            monitor.setStatus("DOWN");
-            monitor.setLastChecked(request.getCheckedAt());
-            monitorStatusRepository.save(monitor);
-            return "Monitor status updated successfully!";
-        } else {
-            return "Monitor not found!";
-        }
+    @Autowired
+    private MonitorService monitorStatusService;
+
+    @PostMapping("/update-status")
+    public String updateMonitorStatus(@RequestBody MonitorStatusUpdate update) {
+        monitorStatusService.updateMonitorStatus(update);
+        return "Monitor status updated successfully!";
     }
 }

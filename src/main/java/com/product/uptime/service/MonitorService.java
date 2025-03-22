@@ -1,10 +1,10 @@
 package com.product.uptime.service;
 
+import com.product.uptime.dto.MonitorStatusUpdate;
 import com.product.uptime.entity.*;
 import com.product.uptime.repository.MonitorCheckHistoryRepository;
 import com.product.uptime.repository.MonitorRepository;
 import com.product.uptime.repository.MonitorStatusRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -42,9 +42,6 @@ public class MonitorService {
             
         MonitorStatus monitorStatus = new MonitorStatus();
         monitorStatus.setMonitorId(monitor.getId());
-        monitorStatus.setStatus("UNKNOWN");
-        monitorStatus.setLastChecked(Instant.now());
-
         MonitorStatus mon = monitorStatusRepository.save(monitorStatus);
 
         Monitor finalMonitor = monitor;

@@ -1,4 +1,4 @@
-package com.product.uptime.entity;
+package com.product.uptime.dto;
 
 import java.time.Instant;
 
@@ -9,6 +9,13 @@ public class MonitorStatusUpdate {
     private Instant checkedAt;      // Timestamp when the check was performed
     private long responseTime;      // Response time in milliseconds
 
+    public MonitorStatusUpdate(String monitorId, String status, int responseTime, String triggerReason, Instant checkedAt) {
+        this.monitorId = monitorId;
+        this.status = status;
+        this.responseTime = responseTime;
+        this.triggerReason = triggerReason;
+        this.checkedAt = checkedAt;
+    }
     // Getters
     public String getMonitorId() {
         return monitorId;

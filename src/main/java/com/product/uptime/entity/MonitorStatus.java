@@ -21,6 +21,20 @@ public class MonitorStatus {
     private Instant lastChecked;
     private int upChecks;
 
+
+    public MonitorStatus() {
+        this.status = "UNKNOWN";
+        this.uptimePercentage = 0.0;
+        this.totalChecks = 0;
+        this.downChecks = 0;
+        this.cumulativeDowntime = 0;
+        this.consecutiveDowntimeCount = 0;
+        this.cumulativeResponse = 0;
+        this.averageResponseTime = 0.0;
+        this.upChecks = 0;
+        this.lastChecked = Instant.now();
+    }
+
     public String getId() {
         return id;
     }
