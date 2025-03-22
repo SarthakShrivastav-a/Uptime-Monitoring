@@ -15,7 +15,12 @@ public class MonitorStatus {
     private int totalChecks;
     private int downChecks;
     private long cumulativeDowntime;
+    private long consecutiveDowntimeCount = 0;
+    private long cumulativeResponse;
+    private double averageResponseTime;
     private Instant lastChecked;
+    private int upChecks;
+
     public String getId() {
         return id;
     }
@@ -72,11 +77,43 @@ public class MonitorStatus {
         this.cumulativeDowntime = cumulativeDowntime;
     }
 
+    public long getConsecutiveDowntimeCount() {
+        return consecutiveDowntimeCount;
+    }
+
+    public void setConsecutiveDowntimeCount(long consecutiveDowntimeCount) {
+        this.consecutiveDowntimeCount = consecutiveDowntimeCount;
+    }
+
+    public long getCumulativeResponse() {
+        return cumulativeResponse;
+    }
+
+    public void setCumulativeResponse(long cumulativeResponse) {
+        this.cumulativeResponse = cumulativeResponse;
+    }
+
+    public double getAverageResponseTime() {
+        return averageResponseTime;
+    }
+
+    public void setAverageResponseTime(double averageResponseTime) {
+        this.averageResponseTime = averageResponseTime;
+    }
+
     public Instant getLastChecked() {
         return lastChecked;
     }
 
     public void setLastChecked(Instant lastChecked) {
         this.lastChecked = lastChecked;
+    }
+
+    public int getUpChecks() {
+        return upChecks;
+    }
+
+    public void setUpChecks(int upChecks) {
+        this.upChecks = upChecks;
     }
 }

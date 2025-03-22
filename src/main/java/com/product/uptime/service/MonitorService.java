@@ -43,8 +43,6 @@ public class MonitorService {
         MonitorStatus monitorStatus = new MonitorStatus();
         monitorStatus.setMonitorId(monitor.getId());
         monitorStatus.setStatus("UNKNOWN");
-        monitorStatus.setUptime(0.0);
-        monitorStatus.setDowntime(0);
         monitorStatus.setLastChecked(Instant.now());
 
         MonitorStatus mon = monitorStatusRepository.save(monitorStatus);
@@ -69,21 +67,57 @@ public class MonitorService {
 
 
     public void updateMonitorStatus(MonitorStatusUpdate update) {
-        MonitorCheckHistory checkHistory = new MonitorCheckHistory(
-                update.getMonitorId(),
-                "DOWN",  // only storeing down events for now will  expand to UP checks too
-                update.getTriggerReason(),
-                update.getTimestamp()
-        );
-        monitorCheckHistoryRepository.save(checkHistory);
-
         Optional<MonitorStatus> optionalMonitorStatus = monitorStatusRepository.findById(update.getMonitorId());
-        if (optionalMonitorStatus.isPresent()) {
-            MonitorStatus monitorStatus = optionalMonitorStatus.get();
-            monitorStatus.setStatus("DOWN");
-            monitorStatus.setLastChecked(Instant.now());
-            monitorStatus.setDowntime(monitorStatus.getDowntime() + 1);
-            monitorStatusRepository.save(monitorStatus);
+        MonitorStatus monitorStatus = optionalMonitorStatus.orElse(new MonitorStatus());
+        monitorStatus.setMonitorId(update.getMonitorId());
+        monitorStatus.setLastChecked(update.getCheckedAt());
+        if ("DOWN".equals(update.getStatus())) {
+            if (!"DOWN".equals(monitorStatus.getStatus())) {
+                // new downtime session log to history
+                MonitorCheckHistory checkHistory = new MonitorCheckHistory(
+                        update.getMonitorId(),
+                        update.getStatus(),
+                        update.getTriggerReason(),
+                        update.getCheckedAt()
+                );
+                monitorCheckHistoryRepository.save(checkHistory);
+                monitorStatus.setConsecutiveDowntimeCount(1);
+            } else {
+                monitorStatus.setConsecutiveDowntimeCount(monitorStatus.getConsecutiveDowntimeCount() + 1);
+            }
+        } else {
+            if ("DOWN".equals(monitorStatus.getStatus())) {
+                monitorStatus.setConsecutiveDowntimeCount(0);
+            }
         }
+
+        // Update the current status
+        monitorStatus.setStatus(update.getStatus());
+
+        // Update total and up checks
+        monitorStatus.setTotalChecks(monitorStatus.getTotalChecks() + 1);
+        if ("UP".equals(update.getStatus())) {
+            monitorStatus.setUpChecks(monitorStatus.getUpChecks() + 1);
+        }
+        if ("DOWN".equals(update.getStatus())) {
+            monitorStatus.setDownChecks(monitorStatus.getDownChecks() + 1);
+            monitorStatus.setCumulativeDowntime(monitorStatus.getCumulativeDowntime() + 30);
+        }
+
+        monitorStatus.setCumulativeResponse(
+                monitorStatus.getCumulativeResponse() + update.getResponseTime()
+        );
+
+        double uptimePercentage = monitorStatus.getTotalChecks() > 0 ?
+                (monitorStatus.getUpChecks() * 100.0) / monitorStatus.getTotalChecks() : 0;
+
+        double averageResponseTime = monitorStatus.getTotalChecks() > 0 ?
+                monitorStatus.getCumulativeResponse() / (double) monitorStatus.getTotalChecks() : 0;
+
+
+        monitorStatus.setUptimePercentage(uptimePercentage);
+        monitorStatus.setAverageResponseTime(averageResponseTime);
+        monitorStatusRepository.save(monitorStatus);
     }
+
     }
