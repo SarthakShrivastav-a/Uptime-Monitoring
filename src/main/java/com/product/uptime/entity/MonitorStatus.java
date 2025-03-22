@@ -11,10 +11,11 @@ public class MonitorStatus {
     private String id;
     private String monitorId;
     private String status;
-    private double uptime;
-    private int downtime;
+    private double uptimePercentage;
+    private int totalChecks;
+    private int downChecks;
+    private long cumulativeDowntime;
     private Instant lastChecked;
-
     public String getId() {
         return id;
     }
@@ -39,20 +40,36 @@ public class MonitorStatus {
         this.status = status;
     }
 
-    public double getUptime() {
-        return uptime;
+    public double getUptimePercentage() {
+        return uptimePercentage;
     }
 
-    public void setUptime(double uptime) {
-        this.uptime = uptime;
+    public void setUptimePercentage(double uptimePercentage) {
+        this.uptimePercentage = uptimePercentage;
     }
 
-    public int getDowntime() {
-        return downtime;
+    public int getTotalChecks() {
+        return totalChecks;
     }
 
-    public void setDowntime(int downtime) {
-        this.downtime = downtime;
+    public void setTotalChecks(int totalChecks) {
+        this.totalChecks = totalChecks;
+    }
+
+    public int getDownChecks() {
+        return downChecks;
+    }
+
+    public void setDownChecks(int downChecks) {
+        this.downChecks = downChecks;
+    }
+
+    public long getCumulativeDowntime() {
+        return cumulativeDowntime;
+    }
+
+    public void setCumulativeDowntime(long cumulativeDowntime) {
+        this.cumulativeDowntime = cumulativeDowntime;
     }
 
     public Instant getLastChecked() {

@@ -24,7 +24,7 @@ public class UpdateStatusController {
         if (monitorOptional.isPresent()) {
             MonitorStatus monitor = monitorOptional.get();
             monitor.setStatus("DOWN");
-            monitor.setLastChecked(request.getTimestamp());
+            monitor.setLastChecked(request.getCheckedAt());
             monitorStatusRepository.save(monitor);
             return "Monitor status updated successfully!";
         } else {

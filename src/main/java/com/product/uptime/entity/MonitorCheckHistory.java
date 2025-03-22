@@ -10,9 +10,11 @@ public class MonitorCheckHistory {
     @Id
     private String id;
     private String monitorId;
-    private String status;        // "UP" or "DOWN"
-    private String triggerReason; // why it went down (timeout, response code, etc.)
+    private String status;
+    private String triggerReason;
     private Instant checkedAt;
+    private long responseTime;
+    private Instant nextScheduledCheck;
 
     public MonitorCheckHistory() {}
 
