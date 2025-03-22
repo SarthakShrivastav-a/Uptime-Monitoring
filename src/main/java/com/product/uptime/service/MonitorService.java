@@ -1,6 +1,7 @@
 package com.product.uptime.service;
 
 import com.product.uptime.entity.*;
+import com.product.uptime.repository.MonitorCheckHistoryRepository;
 import com.product.uptime.repository.MonitorRepository;
 import com.product.uptime.repository.MonitorStatusRepository;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -24,6 +26,8 @@ public class MonitorService {
     private  DomainInfoService domainInfoService;
     @Autowired
     private PostService postService;
+    @Autowired
+    private MonitorCheckHistoryRepository monitorCheckHistoryRepository;
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(5);
 
@@ -50,16 +54,36 @@ public class MonitorService {
         postService.sendPostRequest(mon.getId(),monitor.getUrl(),monitor.getErrorCondition());
         return monitor;
         }
-        private void updateMonitorSSLAndDomain(Monitor monitor) {
-            try {
+    private void updateMonitorSSLAndDomain(Monitor monitor) {
+        try {
                 SSLInfo sslInfo = sslInfoService.getSSLInfo(monitor.getUrl());
                 DomainInfo domainInfo = domainInfoService.getDomainInfo(monitor.getUrl());
                 monitor.setSslInfo(sslInfo);
                 monitor.setDomainInfo(domainInfo);
                 monitorRepository.save(monitor);
-            } catch (Exception e) {
+        } catch (Exception e) {
                 System.err.println("Error updating SSL & Domain info for URL: " + monitor.getUrl());
                 e.printStackTrace();
             }
         }
+
+
+    public void updateMonitorStatus(MonitorStatusUpdate update) {
+        MonitorCheckHistory checkHistory = new MonitorCheckHistory(
+                update.getMonitorId(),
+                "DOWN",  // only storeing down events for now will  expand to UP checks too
+                update.getTriggerReason(),
+                update.getTimestamp()
+        );
+        monitorCheckHistoryRepository.save(checkHistory);
+
+        Optional<MonitorStatus> optionalMonitorStatus = monitorStatusRepository.findById(update.getMonitorId());
+        if (optionalMonitorStatus.isPresent()) {
+            MonitorStatus monitorStatus = optionalMonitorStatus.get();
+            monitorStatus.setStatus("DOWN");
+            monitorStatus.setLastChecked(Instant.now());
+            monitorStatus.setDowntime(monitorStatus.getDowntime() + 1);
+            monitorStatusRepository.save(monitorStatus);
+        }
+    }
     }
