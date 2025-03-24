@@ -1,8 +1,10 @@
 package com.product.uptime.controller;
 
 import com.product.uptime.dto.MonitorDto;
+import com.product.uptime.dto.MonitorStatusUpdate;
 import com.product.uptime.entity.Monitor;
 import com.product.uptime.entity.User;
+import com.product.uptime.repository.MonitorRepository;
 import com.product.uptime.repository.UserRepository;
 import com.product.uptime.service.MonitorService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,23 +15,36 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @RestController
 @RequestMapping("api/monitor")
 public class MonitorController {
 
+    private UserRepository userRepository;
+    private MonitorService monitorService;
+    private MonitorRepository monitorRepository;
     @Autowired
-    UserRepository userRepository;
-
-    @Autowired
-    MonitorService monitorService;
+    public MonitorController(MonitorService monitorService,UserRepository userRepository,MonitorRepository monitorRepository){
+        this.monitorService=monitorService;
+        this.userRepository=userRepository;
+        this.monitorRepository=monitorRepository;
+    }
 
     @PostMapping("create")
-    public ResponseEntity<?> addMonitor(@RequestBody MonitorDto monitorDto) {
+    public ResponseEntity<Monitor> addMonitor(@RequestBody MonitorDto monitorDto) {
         String id = getCurrentUserID();
-
         Monitor monitor =  monitorService.createMonitor(id,monitorDto.getUrl(),monitorDto.getErrorCondition());
         return new ResponseEntity<>(monitor, HttpStatus.CREATED);
     }
+    @GetMapping("fetch")
+    public ResponseEntity<List<Monitor>> getMonitors() {
+        String id = getCurrentUserID();
+        List<Monitor> monitors = monitorRepository.findAllByUserId(id);
+        return ResponseEntity.ok(monitors); //if null, in the ui show no monitors created And highlight the option to create new
+    }
+
 
     private String getCurrentUserID() {
         String email;
