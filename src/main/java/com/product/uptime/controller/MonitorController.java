@@ -1,9 +1,11 @@
 package com.product.uptime.controller;
 
+import com.product.uptime.dto.MonitorDetailsDTO;
 import com.product.uptime.dto.MonitorDto;
 import com.product.uptime.dto.MonitorStatusUpdate;
 import com.product.uptime.entity.Monitor;
 import com.product.uptime.entity.User;
+import com.product.uptime.exception.MonitorNotFoundException;
 import com.product.uptime.repository.MonitorRepository;
 import com.product.uptime.repository.UserRepository;
 import com.product.uptime.service.MonitorService;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("api/monitor")
@@ -44,7 +47,20 @@ public class MonitorController {
         List<Monitor> monitors = monitorRepository.findAllByUserId(id);
         return ResponseEntity.ok(monitors); //if null, in the ui show no monitors created And highlight the option to create new
     }
+    @GetMapping("/fetch/{id}")
+    public ResponseEntity<Monitor> getById(@PathVariable String id) {
+        Monitor monitor = monitorRepository.findById(id)
+                .orElseThrow(() -> new MonitorNotFoundException("Monitor not found with ID: " + id));
 
+        String userId = getCurrentUserID();
+        String usId = monitor.getUserId();
+
+        if (usId.equals(userId)) {
+            return new ResponseEntity<>(monitor, HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+    }
 
     private String getCurrentUserID() {
         String email;
@@ -57,5 +73,11 @@ public class MonitorController {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(()-> new UsernameNotFoundException("User not Found "+ email));
         return user.getId();
+    }
+
+    @GetMapping("/{monitorId}/details")
+    public ResponseEntity<MonitorDetailsDTO> getMonitorDetails(@PathVariable String monitorId) {
+        MonitorDetailsDTO details = monitorService.getMonitorDetails(monitorId);
+        return ResponseEntity.ok(details);
     }
 }
