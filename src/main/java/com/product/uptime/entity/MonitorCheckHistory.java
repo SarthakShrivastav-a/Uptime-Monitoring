@@ -13,8 +13,6 @@ public class MonitorCheckHistory {
     private String status;
     private String triggerReason;
     private Instant checkedAt;
-    private long responseTime;
-    private Instant nextScheduledCheck;
 
     public MonitorCheckHistory() {}
 

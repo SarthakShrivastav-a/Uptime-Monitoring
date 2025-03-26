@@ -7,5 +7,7 @@ import java.util.Optional;
 
 public interface MonitorStatusRepository extends MongoRepository<MonitorStatus,String> {
     Optional<MonitorStatus> findById(String id);
+    MonitorStatus findByMonitorId(String monitorId);
+
 
 }
