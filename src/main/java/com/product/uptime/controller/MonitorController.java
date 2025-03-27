@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("api/monitor")
+@RequestMapping("/api/monitor")
 public class MonitorController {
 
     private UserRepository userRepository;
@@ -35,13 +35,13 @@ public class MonitorController {
         this.monitorRepository=monitorRepository;
     }
 
-    @PostMapping("create")
+    @PostMapping("/create")
     public ResponseEntity<Monitor> addMonitor(@RequestBody MonitorDto monitorDto) {
         String id = getCurrentUserID();
         Monitor monitor =  monitorService.createMonitor(id,monitorDto.getUrl(),monitorDto.getErrorCondition());
         return new ResponseEntity<>(monitor, HttpStatus.CREATED);
     }
-    @GetMapping("fetch")
+    @GetMapping("/fetch")
     public ResponseEntity<List<Monitor>> getMonitors() {
         String id = getCurrentUserID();
         List<Monitor> monitors = monitorRepository.findAllByUserId(id);
