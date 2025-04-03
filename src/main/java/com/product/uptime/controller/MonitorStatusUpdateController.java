@@ -1,5 +1,6 @@
 package com.product.uptime.controller;
 
+import com.product.uptime.dto.MonitorStatusUpdate;
 import com.product.uptime.service.MonitorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -8,18 +9,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/private")
-public class MonitorStatusUpdate {
+@RequestMapping("/api/private")
+public class MonitorStatusUpdateController {
+
 
     private final MonitorService monitorService;
 
     @Autowired
-    public MonitorStatusUpdate(MonitorService monitorService){
+    public MonitorStatusUpdateController(MonitorService monitorService){
         this.monitorService=monitorService;
     }
 
     @PostMapping("/update")
-    public String updateMonitorStatus(@RequestBody com.product.uptime.dto.MonitorStatusUpdate update) {
+    public String updateMonitorStatus(@RequestBody MonitorStatusUpdate update) {
+        System.out.println("REeached here");
         monitorService.updateMonitorStatus(update);
         return "Monitor status updated successfully!";
     }

@@ -48,7 +48,7 @@ public class MonitorService {
 
         Monitor finalMonitor = monitor;
         executorService.submit(() -> updateMonitorSSLAndDomain(finalMonitor));
-        postService.sendPostRequest(mon.getId(),monitor.getUrl(),monitor.getErrorCondition());
+        postService.sendPostRequest(monitor.getId(),monitor.getUrl(),monitor.getErrorCondition());
         return monitor;
         }
     private void updateMonitorSSLAndDomain(Monitor monitor) {

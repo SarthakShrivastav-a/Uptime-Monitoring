@@ -63,7 +63,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers(new AntPathRequestMatcher("/api/auth/signin")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/error/**")).permitAll()
-
+                        .requestMatchers(new AntPathRequestMatcher("/api/private/update")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/api/auth/register")).permitAll()
                         .anyRequest().authenticated()
                 )
