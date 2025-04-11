@@ -1,6 +1,7 @@
 package com.product.uptime.controller;
 
 import com.product.uptime.dto.MonitorStatusUpdate;
+import com.product.uptime.exception.EntityNotFoundException;
 import com.product.uptime.service.MonitorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,7 +22,7 @@ public class MonitorStatusUpdateController {
     }
 
     @PostMapping("/update")
-    public String updateMonitorStatus(@RequestBody MonitorStatusUpdate update) {
+    public String updateMonitorStatus(@RequestBody MonitorStatusUpdate update) throws EntityNotFoundException {
         System.out.println("REeached here");
         monitorService.updateMonitorStatus(update);
         return "Monitor status updated successfully!";

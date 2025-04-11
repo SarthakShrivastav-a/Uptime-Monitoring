@@ -49,7 +49,7 @@ public class EmailService {
     }
     @Async
     public void sendEmail(String recipient, String body, String subject){
-
+    System.out.println("Reached Here");
         SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
         simpleMailMessage.setFrom(from);
         simpleMailMessage.setTo(recipient);
