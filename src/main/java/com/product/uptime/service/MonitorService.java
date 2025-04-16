@@ -334,4 +334,19 @@ public class MonitorService {
         return dto;
     }
 
+    public void deleteMonitor(String id) throws EntityNotFoundException {
+        Optional<Monitor> monitorOptional = monitorRepository.findById(id);
+        if (monitorOptional.isPresent()) {
+            Monitor monitor = monitorOptional.get();
+            monitorStatusRepository.deleteByMonitorId(id);
+            monitorRepository.deleteById(id);
+            postService.sendDeleteRequest(id);
+
+            logger.info("Monitor with ID {} has been deleted", id);
+        } else {
+            logger.warn("Attempted to delete non-existent monitor with ID: {}", id);
+            throw new EntityNotFoundException("Monitor with ID " + id + " not found");
+        }
+    }
+
 }

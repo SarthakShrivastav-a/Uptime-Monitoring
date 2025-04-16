@@ -5,6 +5,7 @@ import com.product.uptime.dto.MonitorDto;
 import com.product.uptime.dto.MonitorStatusUpdate;
 import com.product.uptime.entity.Monitor;
 import com.product.uptime.entity.User;
+import com.product.uptime.exception.EntityNotFoundException;
 import com.product.uptime.exception.MonitorNotFoundException;
 import com.product.uptime.repository.MonitorRepository;
 import com.product.uptime.repository.UserRepository;
@@ -80,4 +81,10 @@ public class MonitorController {
         MonitorDetailsDTO details = monitorService.getMonitorDetails(monitorId);
         return ResponseEntity.ok(details);
     }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteMonitor(@PathVariable String id) throws EntityNotFoundException {
+        monitorService.deleteMonitor(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
 }

@@ -10,4 +10,5 @@ public interface MonitorStatusRepository extends MongoRepository<MonitorStatus,S
     MonitorStatus findByMonitorId(String monitorId);
 
 
+    void deleteByMonitorId(String id);
 }
