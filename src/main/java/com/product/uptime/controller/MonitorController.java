@@ -3,6 +3,8 @@ package com.product.uptime.controller;
 import com.product.uptime.dto.MonitorDetailsDTO;
 import com.product.uptime.dto.MonitorDto;
 import com.product.uptime.dto.MonitorStatusUpdate;
+import com.product.uptime.dto.MonitorUpdateDTO;
+import com.product.uptime.entity.ErrorCondition;
 import com.product.uptime.entity.Monitor;
 import com.product.uptime.entity.User;
 import com.product.uptime.exception.EntityNotFoundException;
@@ -18,9 +20,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/monitor")
@@ -86,6 +86,42 @@ public class MonitorController {
         monitorService.deleteMonitor(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+    @PatchMapping("/{id}/error-condition")
+    public ResponseEntity<?> updateMonitorErrorCondition(
+            @PathVariable String id,
+            @RequestBody ErrorCondition errorCondition) {
 
+        try {
+            // Validate the error condition
+            if (errorCondition.getTriggerOn() == null || errorCondition.getTriggerOn().isEmpty()) {
+                return ResponseEntity
+                        .badRequest()
+                        .body("TriggerOn is required in error condition");
+            }
+
+            // Update the monitor's error condition
+            Monitor updatedMonitor = monitorService.updateMonitorErrorCondition(id, errorCondition);
+
+            // Return the updated monitor
+            return ResponseEntity.ok(updatedMonitor);
+
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(e.getMessage());
+        } catch (Exception e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Failed to update monitor error condition");
+            errorResponse.put("message", e.getMessage());
+
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(errorResponse);
+        }
+    }
 
 }

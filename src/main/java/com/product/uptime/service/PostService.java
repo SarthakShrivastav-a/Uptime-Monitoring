@@ -76,7 +76,33 @@ public class PostService {
             return "Error occurred during deletion: " + e.getMessage();
         }
     }
-}
+    public String updateMonitorErrorCondition(String id, ErrorCondition errorCondition) {
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("monitor_id", id);
+        Map<String, Object> errorConditionMap = new HashMap<>();
+        errorConditionMap.put("triggerOn", errorCondition.getTriggerOn());
+        errorConditionMap.put("value", errorCondition.getValue());
+        requestBody.put("error_condition", errorConditionMap);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestBody, headers);
+
+        try {
+            ResponseEntity<String> response = restTemplate.postForEntity(
+                    postUrl + "update_monitor", // New endpoint specific to error condition updates
+                    request,
+                    String.class
+            );
+
+            System.out.println("Update error condition response status code: " + response.getStatusCode());
+            return response.getBody();
+        } catch (Exception e) {
+            System.err.println("Error in update error condition request: " + e.getMessage());
+            return "Error occurred during update: " + e.getMessage();
+        }
+}}
 
 
 

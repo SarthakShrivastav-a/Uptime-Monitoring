@@ -349,7 +349,8 @@ public class MonitorService {
             throw new EntityNotFoundException("Monitor with ID " + id + " not found");
         }
     }
-    public Monitor updateMonitor(String id, MonitorUpdateDTO updateDTO) throws EntityNotFoundException {
+
+    public Monitor updateMonitorErrorCondition(String id, ErrorCondition errorCondition) throws EntityNotFoundException {
         Optional<Monitor> existingMonitorOptional = monitorRepository.findById(id);
 
         if (existingMonitorOptional.isEmpty()) {
@@ -358,24 +359,17 @@ public class MonitorService {
 
         Monitor existingMonitor = existingMonitorOptional.get();
 
-        if (updateDTO.getUrl() != null) {
-            existingMonitor.setUrl(updateDTO.getUrl());
+        // Only update the error condition
+        if (errorCondition != null) {
+            existingMonitor.setErrorCondition(errorCondition);
+
+            // Send update to Go server
+            postService.updateMonitorErrorCondition(id, errorCondition);
+        } else {
+            throw new IllegalArgumentException("Error condition cannot be null for update");
         }
 
-        if (updateDTO.getErrorCondition() != null) {
-            existingMonitor.setErrorCondition(updateDTO.getErrorCondition());
-
-            postService.sendPostRequest(id, existingMonitor.getUrl(), existingMonitor.getErrorCondition());
-        }
-
-        // Save the updated monitor
-        Monitor savedMonitor = monitorRepository.save(existingMonitor);
-
-        // If URL changed, we might want to update SSL and domain info
-        if (updateDTO.getUrl() != null && !updateDTO.getUrl().equals(existingMonitor.getUrl())) {
-            executorService.submit(() -> updateMonitorSSLAndDomain(savedMonitor));
-        }
-
-        return savedMonitor;
+        // Save the updated monitor in the local database
+        return monitorRepository.save(existingMonitor);
     }
 }
