@@ -3,10 +3,7 @@ package com.product.uptime.service;
 
 import com.product.uptime.entity.ErrorCondition;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import java.util.HashMap;
@@ -41,7 +38,7 @@ public class PostService {
 
         try {
             ResponseEntity<String> response = restTemplate.postForEntity(
-                    postUrl,
+                    postUrl+"add_monitor",
                     request,
                     String.class
             );
@@ -51,6 +48,32 @@ public class PostService {
         } catch (Exception e) {
             System.err.println("Error in request: " + e.getMessage());
             return "Error occurred: " + e.getMessage();
+        }
+    }
+    public String sendDeleteRequest(String id) {
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("id", id);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestBody, headers);
+
+        try {
+            // Use exchange method instead of the specific delete method
+            // This allows us to send a body with the DELETE request
+            ResponseEntity<String> response = restTemplate.exchange(
+                    postUrl + "/delete_monitor", // Assuming there's a delete endpoint
+                    HttpMethod.DELETE,
+                    request,
+                    String.class
+            );
+
+            System.out.println("Delete response status code: " + response.getStatusCode());
+            return response.getBody();
+        } catch (Exception e) {
+            System.err.println("Error in delete request: " + e.getMessage());
+            return "Error occurred during deletion: " + e.getMessage();
         }
     }
 }

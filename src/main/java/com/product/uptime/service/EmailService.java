@@ -24,8 +24,7 @@ public class EmailService {
 
     @Value("${spring.mail.username}")
     private String from;
-
-    @Async
+       @Async
     public void sendEmailWithAttachment(String recipient, String body, String subject, byte[] pdfAttachment, String fileName) {
         try {
             MimeMessage mimeMessage = javaMailSender.createMimeMessage();
