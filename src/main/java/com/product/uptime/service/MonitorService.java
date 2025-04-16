@@ -2,6 +2,7 @@ package com.product.uptime.service;
 
 import com.product.uptime.dto.MonitorDetailsDTO;
 import com.product.uptime.dto.MonitorStatusUpdate;
+import com.product.uptime.dto.MonitorUpdateDTO;
 import com.product.uptime.entity.*;
 import com.product.uptime.exception.EntityNotFoundException;
 import com.product.uptime.repository.MonitorCheckHistoryRepository;
@@ -348,5 +349,33 @@ public class MonitorService {
             throw new EntityNotFoundException("Monitor with ID " + id + " not found");
         }
     }
+    public Monitor updateMonitor(String id, MonitorUpdateDTO updateDTO) throws EntityNotFoundException {
+        Optional<Monitor> existingMonitorOptional = monitorRepository.findById(id);
 
+        if (existingMonitorOptional.isEmpty()) {
+            throw new EntityNotFoundException("Monitor with ID " + id + " not found");
+        }
+
+        Monitor existingMonitor = existingMonitorOptional.get();
+
+        if (updateDTO.getUrl() != null) {
+            existingMonitor.setUrl(updateDTO.getUrl());
+        }
+
+        if (updateDTO.getErrorCondition() != null) {
+            existingMonitor.setErrorCondition(updateDTO.getErrorCondition());
+
+            postService.sendPostRequest(id, existingMonitor.getUrl(), existingMonitor.getErrorCondition());
+        }
+
+        // Save the updated monitor
+        Monitor savedMonitor = monitorRepository.save(existingMonitor);
+
+        // If URL changed, we might want to update SSL and domain info
+        if (updateDTO.getUrl() != null && !updateDTO.getUrl().equals(existingMonitor.getUrl())) {
+            executorService.submit(() -> updateMonitorSSLAndDomain(savedMonitor));
+        }
+
+        return savedMonitor;
+    }
 }
