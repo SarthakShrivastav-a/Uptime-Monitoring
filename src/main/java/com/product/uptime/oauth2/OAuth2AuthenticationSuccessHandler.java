@@ -86,7 +86,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         String token = jwtUtility.generateTokenFromUsername(userDetails);
 
         // Redirect to frontend with token
-        String redirectUrl = "http://localhost:3000/oauth2/callback?token=" + token;
+        String redirectUrl = "http://localhost:3000/Oauth2?token=" + token;
 
         // For new users, add a parameter to indicate profile completion is needed
         if (!existingUser.isPresent()) {
