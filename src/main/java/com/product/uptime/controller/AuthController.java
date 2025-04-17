@@ -1,6 +1,7 @@
 package com.product.uptime.controller;
 
 
+import com.product.uptime.dto.CompleteProfileRequest;
 import com.product.uptime.entity.AuthUser;
 import com.product.uptime.dto.LoginRequest;
 import com.product.uptime.dto.SignUp;
@@ -15,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -93,5 +95,23 @@ public class AuthController {
         userRepository.save(user);
 
         return ResponseEntity.ok("User registered successfully!");
+    }
+    @PostMapping("/complete-profile")
+    public ResponseEntity<?> completeProfile(@RequestBody CompleteProfileRequest request,
+                                             @AuthenticationPrincipal UserDetails userDetails) {
+        String email = userDetails.getUsername();
+
+        // Find the user by email
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Update user information
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+        user.setCompany(request.getCompanyName());
+
+        userRepository.save(user);
+
+        return ResponseEntity.ok("Profile updated successfully");
     }
 }
