@@ -34,6 +34,13 @@ public class AuthTokenFilter extends OncePerRequestFilter {
         String requestUri = request.getRequestURI();
         logger.debug("AuthTokenFilter triggered for URI: {}", requestUri);
 
+        // Skip JWT processing for OAuth2 authorization endpoints
+        if (requestUri.contains("/oauth2/") || requestUri.contains("/login/oauth2/")) {
+            logger.debug("Skipping JWT authentication for OAuth2 endpoint: {}", requestUri);
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         try {
             String jwt = parseJwt(request);
 
@@ -41,20 +48,25 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                 String username = jwtUtility.getUserNameFromJwtToken(jwt);
                 logger.debug("Valid JWT found for user: {}", username);
 
-                UserDetails userDetails = authUserService.loadUserByUsername(username);
+                try {
+                    UserDetails userDetails = authUserService.loadUserByUsername(username);
 
-                if (userDetails != null) {
-                    UsernamePasswordAuthenticationToken authentication =
-                            new UsernamePasswordAuthenticationToken(
-                                    userDetails, null, userDetails.getAuthorities()
-                            );
+                    if (userDetails != null) {
+                        UsernamePasswordAuthenticationToken authentication =
+                                new UsernamePasswordAuthenticationToken(
+                                        userDetails, null, userDetails.getAuthorities()
+                                );
 
-                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
-                    logger.info("User {} successfully authenticated with JWT.", username);
+                        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                        logger.info("User {} successfully authenticated with JWT.", username);
+                    }
+                } catch (Exception e) {
+                    logger.error("Error loading user details for JWT user {}: {}", username, e.getMessage());
+                    // Continue filter chain without authentication - security config will determine access
                 }
             } else {
-                logger.warn("No valid JWT found for request: {}", requestUri);
+                logger.debug("No valid JWT found for request: {}", requestUri);
             }
         } catch (Exception e) {
             logger.error("Authentication processing error: {}", e.getMessage(), e);
@@ -62,7 +74,6 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
     }
-
     private String parseJwt(HttpServletRequest request) {
         String jwt = jwtUtility.getJwtFromHeader(request);
         logger.debug("Extracted JWT from request: {}", jwt);

@@ -96,22 +96,5 @@ public class AuthController {
 
         return ResponseEntity.ok("User registered successfully!");
     }
-    @PostMapping("/complete-profile")
-    public ResponseEntity<?> completeProfile(@RequestBody CompleteProfileRequest request,
-                                             @AuthenticationPrincipal UserDetails userDetails) {
-        String email = userDetails.getUsername();
 
-        // Find the user by email
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        // Update user information
-        user.setFirstName(request.getFirstName());
-        user.setLastName(request.getLastName());
-        user.setCompany(request.getCompanyName());
-
-        userRepository.save(user);
-
-        return ResponseEntity.ok("Profile updated successfully");
-    }
 }

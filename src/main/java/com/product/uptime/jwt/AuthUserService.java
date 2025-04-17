@@ -19,10 +19,16 @@ public class AuthUserService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         AuthUser user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not Found "+ email));
-        return User.withUsername(user.getEmail())
-                .password(user.getPassword())
-                .roles(user.getRole())
-                .build();
-
+        if (user.getPassword() == null && user.getProvider() != null) {
+            return User.withUsername(user.getEmail())
+                    .password("")
+                    .roles(user.getRole())
+                    .build();
+        } else {
+            return User.withUsername(user.getEmail())
+                    .password(user.getPassword())
+                    .roles(user.getRole())
+                    .build();
+        }
     }
 }
