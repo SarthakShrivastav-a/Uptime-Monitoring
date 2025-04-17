@@ -2,6 +2,7 @@ package com.product.uptime.config;
 
 
 import com.product.uptime.jwt.AuthTokenFilter;
+import com.product.uptime.oauth2.OAuth2AuthenticationSuccessHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
