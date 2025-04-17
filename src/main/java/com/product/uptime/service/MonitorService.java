@@ -13,8 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.slf4j.Logger;
@@ -39,6 +41,8 @@ public class MonitorService {
     private UserRepository userRepository;
     @Autowired
     private EmailService emailService;
+    @Autowired
+    private TeamService teamService;
 
     private static final Logger logger = LoggerFactory.getLogger(MonitorService.class);
 
@@ -212,23 +216,23 @@ public class MonitorService {
             logger.error("Failed to save monitor check history", e);
         }
 
-        // Send alert email if user exists
+        // Send alert emails to user and all active team members if user exists
         if (user != null) {
             try {
-                sendDowntimeAlert(monitorStatus, update, monitor, user);
+                sendDowntimeAlertToTeam(monitorStatus, update, monitor, user);
             } catch (Exception e) {
-                logger.error("Failed to send downtime alert email", e);
+                logger.error("Failed to send downtime alert emails", e);
             }
         } else {
-            logger.warn("Cannot send alert email - user not found for monitor: {}", update.getMonitorId());
+            logger.warn("Cannot send alert emails - user not found for monitor: {}", update.getMonitorId());
         }
     }
 
     /**
-     * Send downtime alert email
+     * Send downtime alert emails to the user and all active team members
      */
-    private void sendDowntimeAlert(MonitorStatus monitorStatus, MonitorStatusUpdate update,
-                                   Monitor monitor, User user) {
+    private void sendDowntimeAlertToTeam(MonitorStatus monitorStatus, MonitorStatusUpdate update,
+                                         Monitor monitor, User user) {
         String subject = "Alert: Website Down - " + monitor.getUrl();
 
         String body = String.format(
@@ -268,9 +272,28 @@ public class MonitorService {
                 monitorStatus.getAverageResponseTime()
         );
 
-        String recipient = user.getEmail();
-        logger.info("Sending downtime alert email to: {}", recipient);
-        emailService.sendEmail(recipient, body, subject);
+        // Create a set to avoid duplicate emails
+        Set<String> allRecipients = new HashSet<>();
+
+        // Always add the user's email first
+        allRecipients.add(user.getEmail());
+        logger.info("Adding monitor owner email to recipients: {}", user.getEmail());
+
+        // Then add all active team member emails
+        List<String> teamEmails = teamService.getActiveTeamMemberEmails(user.getId());
+        allRecipients.addAll(teamEmails);
+
+        if (teamEmails.isEmpty()) {
+            logger.info("No active team members found, sending alert to user email only");
+        } else {
+            logger.info("Added {} active team members to recipients", teamEmails.size());
+        }
+
+        // Send email to each recipient
+        for (String recipient : allRecipients) {
+            logger.info("Sending downtime alert email to: {}", recipient);
+            emailService.sendEmail(recipient, body, subject);
+        }
     }
 
     /**
