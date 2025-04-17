@@ -178,20 +178,20 @@ public class TeamService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Get all active team members' emails using MongoTemplate
-     */
-    public List<String> getActiveTeamMemberEmailsWithMongoTemplate(String userId) {
-        Query query = new Query(Criteria.where("userId").is(userId));
-        Team team = mongoTemplate.findOne(query, Team.class);
-
-        if (team == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Team not found for user: " + userId);
-        }
-
-        return team.getTeamMembers().stream()
-                .filter(TeamMember::isActive)
-                .map(TeamMember::getEmail)
-                .collect(Collectors.toList());
-    }
+//    /**
+//     * Get all active team members' emails using MongoTemplate
+//     */
+//    public List<String> getActiveTeamMemberEmailsWithMongoTemplate(String userId) {
+//        Query query = new Query(Criteria.where("userId").is(userId));
+//        Team team = mongoTemplate.findOne(query, Team.class);
+//
+//        if (team == null) {
+//            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Team not found for user: " + userId);
+//        }
+//
+//        return team.getTeamMembers().stream()
+//                .filter(TeamMember::isActive)
+//                .map(TeamMember::getEmail)
+//                .collect(Collectors.toList());
+//    }
 }
