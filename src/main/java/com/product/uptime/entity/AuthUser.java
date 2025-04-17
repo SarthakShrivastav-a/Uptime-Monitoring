@@ -18,6 +18,10 @@ public class AuthUser {
     private String password;
     private String role;
     private Instant createdAt = Instant.now();
+    private String providerId;
+    private String provider;
+
+// Add getters and setters
 
     public String getId() {
         return id;

@@ -2,6 +2,7 @@ package com.product.uptime.config;
 
 
 import com.product.uptime.jwt.AuthTokenFilter;
+import com.product.uptime.oauth2.OAuth2AuthenticationSuccessHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,8 @@ public class SecurityConfig {
 
     @Autowired
     private AuthTokenFilter authTokenFilter;
+    @Autowired
+    private OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -65,7 +68,11 @@ public class SecurityConfig {
                         .requestMatchers(new AntPathRequestMatcher("/error/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/api/private/update")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/api/auth/register")).permitAll()
+                        .requestMatchers("/oauth2/**", "/login/oauth2/code/**").permitAll()
                         .anyRequest().authenticated()
+                )
+                .oauth2Login(oauth2 -> oauth2
+                        .successHandler(oAuth2AuthenticationSuccessHandler)
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class);

@@ -1,6 +1,7 @@
 package com.product.uptime.controller;
 
 
+import com.product.uptime.dto.CompleteProfileRequest;
 import com.product.uptime.entity.AuthUser;
 import com.product.uptime.dto.LoginRequest;
 import com.product.uptime.dto.SignUp;
@@ -15,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -94,4 +96,5 @@ public class AuthController {
 
         return ResponseEntity.ok("User registered successfully!");
     }
+
 }
