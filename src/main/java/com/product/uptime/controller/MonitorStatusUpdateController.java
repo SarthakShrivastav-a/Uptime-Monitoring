@@ -23,7 +23,6 @@ public class MonitorStatusUpdateController {
 
     @PostMapping("/update")
     public String updateMonitorStatus(@RequestBody MonitorStatusUpdate update) throws EntityNotFoundException {
-        System.out.println("REeached here");
         monitorService.updateMonitorStatus(update);
         return "Monitor status updated successfully!";
     }
