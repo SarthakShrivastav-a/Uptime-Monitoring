@@ -68,11 +68,11 @@ public class SecurityConfig {
         http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(requests -> requests
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/api/auth/signin")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/error/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/api/private/update")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/api/auth/register")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/api/heartbeat/**")).permitAll()  // Add this line
                         .requestMatchers("/oauth2/**", "/login/oauth2/code/**").permitAll()
                         .anyRequest().authenticated()
                 )
