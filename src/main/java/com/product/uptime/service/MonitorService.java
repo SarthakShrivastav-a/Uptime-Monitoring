@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -332,7 +333,13 @@ public class MonitorService {
         logger.info("Adding monitor owner email to recipients: {}", user.getEmail());
 
         // Then add all active team member emails
-        List<String> teamEmails = teamService.getActiveTeamMemberEmails(user.getId());
+        List<String> teamEmails;
+        try {
+            teamEmails = teamService.getActiveTeamMemberEmails(user.getId());
+        } catch (Exception e) {
+            logger.info("No team configured for user {}, sending alert to owner only", user.getId());
+            teamEmails = Collections.emptyList();
+        }
         allRecipients.addAll(teamEmails);
 
         if (teamEmails.isEmpty()) {
