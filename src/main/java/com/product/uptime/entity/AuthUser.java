@@ -21,8 +21,6 @@ public class AuthUser {
     private String providerId;
     private String provider;
 
-// Add getters and setters
-
     public String getId() {
         return id;
     }
