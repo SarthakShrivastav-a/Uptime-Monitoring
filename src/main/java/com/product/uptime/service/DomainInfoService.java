@@ -5,6 +5,7 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 import java.time.Instant;
 import java.time.ZonedDateTime;
@@ -24,6 +25,10 @@ public class DomainInfoService {
 
     public DomainInfo getDomainInfo(String url) {
         try {
+            if (!StringUtils.hasText(whoisApiKey)) {
+                return null;
+            }
+
             String domain = extractDomain(url);
             String apiUrl = whoisApiBaseUrl + "?apiKey=" + whoisApiKey + "&domainName=" + domain + "&outputFormat=JSON";
 
