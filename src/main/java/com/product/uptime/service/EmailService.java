@@ -22,7 +22,7 @@ public class EmailService {
     @Autowired
     private JavaMailSender javaMailSender;
 
-    @Value("${spring.mail.username}")
+    @Value("${spring.mail.from:no-reply@sentinel.local}")
     private String from;
        @Async
     public void sendEmailWithAttachment(String recipient, String body, String subject, byte[] pdfAttachment, String fileName) {
@@ -48,7 +48,6 @@ public class EmailService {
     }
     @Async
     public void sendEmail(String recipient, String body, String subject){
-    System.out.println("Reached Here");
         SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
         simpleMailMessage.setFrom(from);
         simpleMailMessage.setTo(recipient);
