@@ -1,13 +1,13 @@
 package com.product.uptime.repository;
 
 import com.product.uptime.entity.CronJob;
-import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface CronJobRepository extends MongoRepository<CronJob, String> {
+public interface CronJobRepository extends JpaRepository<CronJob, String> {
     Optional<CronJob> findByApiKey(String apiKey);
     List<CronJob> findByActiveTrue();
 

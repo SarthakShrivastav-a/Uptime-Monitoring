@@ -1,8 +1,11 @@
 package com.product.uptime.entity;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Document;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
@@ -13,12 +16,14 @@ import java.time.Instant;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "heartbeat_logs")
+@Entity
+@Table(name = "heartbeat_logs", indexes = {
+        @Index(name = "heartbeat_logs_cron_job_id_idx", columnList = "cronJobId")
+})
 public class HeartbeatLog {
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
-
-    @Indexed
     private String cronJobId;
 
     private String userId;

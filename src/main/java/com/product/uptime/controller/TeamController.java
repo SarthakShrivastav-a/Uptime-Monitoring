@@ -105,19 +105,12 @@ public class TeamController {
         return ResponseEntity.ok(member);
     }
 
-    // Uncomment if you need these endpoints
+    // Uncomment if you need this endpoint
     /*
     @GetMapping("/members/active/emails")
     public ResponseEntity<List<String>> getActiveTeamMemberEmails() {
         String userId = getCurrentUserId();
         List<String> emails = teamService.getActiveTeamMemberEmails(userId);
-        return ResponseEntity.ok(emails);
-    }
-
-    @GetMapping("/members/active/emails/mongo-template")
-    public ResponseEntity<List<String>> getActiveTeamMemberEmailsWithMongoTemplate() {
-        String userId = getCurrentUserId();
-        List<String> emails = teamService.getActiveTeamMemberEmailsWithMongoTemplate(userId);
         return ResponseEntity.ok(emails);
     }
     */

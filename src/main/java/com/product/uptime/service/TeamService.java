@@ -4,9 +4,6 @@ import com.product.uptime.entity.Team;
 import com.product.uptime.entity.TeamMember;
 import com.product.uptime.repository.TeamRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -21,9 +18,6 @@ public class TeamService {
 
     @Autowired
     private TeamRepository teamRepository;
-
-    @Autowired
-    private MongoTemplate mongoTemplate;
 
     /**
      * Get a team by user ID
@@ -178,20 +172,4 @@ public class TeamService {
                 .collect(Collectors.toList());
     }
 
-//    /**
-//     * Get all active team members' emails using MongoTemplate
-//     */
-//    public List<String> getActiveTeamMemberEmailsWithMongoTemplate(String userId) {
-//        Query query = new Query(Criteria.where("userId").is(userId));
-//        Team team = mongoTemplate.findOne(query, Team.class);
-//
-//        if (team == null) {
-//            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Team not found for user: " + userId);
-//        }
-//
-//        return team.getTeamMembers().stream()
-//                .filter(TeamMember::isActive)
-//                .map(TeamMember::getEmail)
-//                .collect(Collectors.toList());
-//    }
 }
