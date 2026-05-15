@@ -24,14 +24,7 @@ public class AiCopilotService {
     }
 
     public Map<String, Object> summarizeIncident(Incident incident) {
-        Map<String, Object> request = Map.of(
-                "incident_id", incident.getId(),
-                "title", incident.getTitle(),
-                "state", incident.getState(),
-                "severity", incident.getSeverity(),
-                "updates", incident.getUpdates()
-        );
-
+        Map<String, Object> request = incidentPayload(incident);
         try {
             ResponseEntity<Map> response = restTemplate.postForEntity(
                     aiServiceUrl + "/incident-summary",
@@ -48,5 +41,55 @@ public class AiCopilotService {
                     "fallback", true
             );
         }
+    }
+
+    public Map<String, Object> rootCauseHints(Incident incident) {
+        try {
+            ResponseEntity<Map> response = restTemplate.postForEntity(
+                    aiServiceUrl + "/root-cause-hints",
+                    incidentPayload(incident),
+                    Map.class
+            );
+            return response.getBody();
+        } catch (Exception e) {
+            logger.warn("AI service unavailable, using fallback root cause hints: {}", e.getMessage());
+            return Map.of(
+                    "hints", new String[]{"Check recent monitor failures", "Compare status codes and response times", "Review deployment and DNS changes"},
+                    "confidence", "low",
+                    "fallback", true
+            );
+        }
+    }
+
+    public Map<String, Object> draftPostmortem(Incident incident) {
+        try {
+            ResponseEntity<Map> response = restTemplate.postForEntity(
+                    aiServiceUrl + "/postmortem-draft",
+                    incidentPayload(incident),
+                    Map.class
+            );
+            return response.getBody();
+        } catch (Exception e) {
+            logger.warn("AI service unavailable, using fallback postmortem draft: {}", e.getMessage());
+            return Map.of(
+                    "executive_summary", "Incident " + incident.getTitle() + " required investigation and follow-up.",
+                    "impact", "User impact should be confirmed from monitor history and support reports.",
+                    "timeline", new String[]{"Incident detected", "Investigation started", "Resolution pending or recorded"},
+                    "root_cause_hypothesis", "Review monitor status, infrastructure health, and recent changes.",
+                    "resolution", "Document the exact remediation once confirmed.",
+                    "prevention_tasks", new String[]{"Add better alert context", "Review runbook coverage", "Confirm owner escalation paths"},
+                    "fallback", true
+            );
+        }
+    }
+
+    private Map<String, Object> incidentPayload(Incident incident) {
+        return Map.of(
+                "incident_id", incident.getId(),
+                "title", incident.getTitle(),
+                "state", incident.getState(),
+                "severity", incident.getSeverity(),
+                "updates", incident.getUpdates()
+        );
     }
 }

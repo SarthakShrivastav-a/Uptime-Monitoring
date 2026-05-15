@@ -24,4 +24,18 @@ public class AiCopilotController {
                 .map(incident -> ResponseEntity.ok(aiCopilotService.summarizeIncident(incident)))
                 .orElse(ResponseEntity.notFound().build());
     }
+
+    @PostMapping("/incidents/{incidentId}/root-cause-hints")
+    public ResponseEntity<Map<String, Object>> rootCauseHints(@PathVariable String incidentId) {
+        return incidentRepository.findById(incidentId)
+                .map(incident -> ResponseEntity.ok(aiCopilotService.rootCauseHints(incident)))
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PostMapping("/incidents/{incidentId}/postmortem-draft")
+    public ResponseEntity<Map<String, Object>> draftPostmortem(@PathVariable String incidentId) {
+        return incidentRepository.findById(incidentId)
+                .map(incident -> ResponseEntity.ok(aiCopilotService.draftPostmortem(incident)))
+                .orElse(ResponseEntity.notFound().build());
+    }
 }
