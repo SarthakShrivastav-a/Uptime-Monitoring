@@ -9,6 +9,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -34,6 +35,8 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
     @Autowired
     private UserRepository userRepository;
+    @Value("${frontend.url:http://localhost:3000}")
+    private String frontendUrl;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -86,7 +89,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         String token = jwtUtility.generateTokenFromUsername(userDetails);
 
         // Redirect to frontend with token
-        String redirectUrl = "http://localhost:3000/Oauth2?token=" + token;
+        String redirectUrl = frontendUrl + "/Oauth2?token=" + token;
 
         // For new users, add a parameter to indicate profile completion is needed
         if (!existingUser.isPresent()) {

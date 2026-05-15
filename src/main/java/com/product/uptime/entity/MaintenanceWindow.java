@@ -12,19 +12,26 @@ import jakarta.persistence.Table;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "teams")
-public class Team {
+@Table(name = "maintenance_windows")
+public class MaintenanceWindow {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private String teamId;
+    private String id;
     private String userId;
+    private String title;
+    private String description;
+    private Instant startsAt;
+    private Instant endsAt;
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
-    private List<TeamMember> teamMembers;
+    private List<String> affectedResourceIds = new ArrayList<>();
+    private Instant createdAt = Instant.now();
 }

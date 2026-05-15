@@ -6,6 +6,7 @@ import com.product.uptime.oauth2.OAuth2AuthenticationSuccessHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -35,6 +36,8 @@ public class SecurityConfig {
     private AuthTokenFilter authTokenFilter;
     @Autowired
     private OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
+    @Value("${frontend.url:http://localhost:3000}")
+    private String frontendUrl;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -50,7 +53,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000")); // Frontend origin
+        configuration.setAllowedOrigins(List.of(frontendUrl)); // Frontend origin
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(List.of(
                 "Authorization", "Cache-Control", "Content-Type", "X-Requested-With"
@@ -73,6 +76,8 @@ public class SecurityConfig {
                         .requestMatchers(new AntPathRequestMatcher("/api/private/update")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/api/auth/register")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/api/heartbeat/**")).permitAll()  // Add this line
+                        .requestMatchers(new AntPathRequestMatcher("/api/public/**")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/actuator/health/**")).permitAll()
                         .requestMatchers("/oauth2/**", "/login/oauth2/code/**").permitAll()
                         .anyRequest().authenticated()
                 )

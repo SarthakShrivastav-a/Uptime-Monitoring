@@ -2,17 +2,21 @@ package com.product.uptime.entity;
 
 
 import lombok.*;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import java.time.Instant;
-import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "auth_users")
+@Entity
+@Table(name = "auth_users")
 public class AuthUser {
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
     private String email;
     private String password;
@@ -20,8 +24,6 @@ public class AuthUser {
     private Instant createdAt = Instant.now();
     private String providerId;
     private String provider;
-
-// Add getters and setters
 
     public String getId() {
         return id;

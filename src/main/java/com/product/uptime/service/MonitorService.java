@@ -5,10 +5,13 @@ import com.product.uptime.dto.MonitorStatusUpdate;
 import com.product.uptime.dto.MonitorUpdateDTO;
 import com.product.uptime.entity.*;
 import com.product.uptime.exception.EntityNotFoundException;
+import com.product.uptime.events.MonitorLifecycleEvent;
 import com.product.uptime.repository.MonitorCheckHistoryRepository;
 import com.product.uptime.repository.MonitorRepository;
 import com.product.uptime.repository.MonitorStatusRepository;
 import com.product.uptime.repository.UserRepository;
+import com.product.uptime.repository.IncidentRepository;
+import com.product.uptime.repository.MaintenanceWindowRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -43,6 +46,12 @@ public class MonitorService {
     private EmailService emailService;
     @Autowired
     private TeamService teamService;
+    @Autowired
+    private MonitorEventPublisher monitorEventPublisher;
+    @Autowired
+    private IncidentRepository incidentRepository;
+    @Autowired
+    private MaintenanceWindowRepository maintenanceWindowRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(MonitorService.class);
 
@@ -63,6 +72,13 @@ public class MonitorService {
 
         Monitor finalMonitor = monitor;
         executorService.submit(() -> updateMonitorSSLAndDomain(finalMonitor));
+        monitorEventPublisher.publish(new MonitorLifecycleEvent(
+                "monitor.created",
+                monitor.getId(),
+                monitor.getUserId(),
+                monitor.getUrl(),
+                monitor.getErrorCondition()
+        ));
         postService.sendPostRequest(monitor.getId(),monitor.getUrl(),monitor.getErrorCondition());
         return monitor;
         }
@@ -202,6 +218,11 @@ public class MonitorService {
      */
     private void recordDowntimeAndAlert(MonitorStatus monitorStatus, MonitorStatusUpdate update,
                                         Monitor monitor, User user) {
+        if (isUnderMaintenance(monitor)) {
+            logger.info("Suppressing incident and alert for monitor {} because it is in maintenance", monitor.getId());
+            return;
+        }
+
         // Save the check history
         try {
             MonitorCheckHistory checkHistory = new MonitorCheckHistory(
@@ -219,6 +240,7 @@ public class MonitorService {
         // Send alert emails to user and all active team members if user exists
         if (user != null) {
             try {
+                createIncidentForDowntime(update, monitor, user);
                 sendDowntimeAlertToTeam(monitorStatus, update, monitor, user);
             } catch (Exception e) {
                 logger.error("Failed to send downtime alert emails", e);
@@ -226,6 +248,36 @@ public class MonitorService {
         } else {
             logger.warn("Cannot send alert emails - user not found for monitor: {}", update.getMonitorId());
         }
+    }
+
+    private boolean isUnderMaintenance(Monitor monitor) {
+        Instant now = Instant.now();
+        try {
+            return maintenanceWindowRepository.findByUserIdOrderByStartsAtDesc(monitor.getUserId()).stream()
+                    .filter(window -> window.getStartsAt() != null && window.getEndsAt() != null)
+                    .filter(window -> !now.isBefore(window.getStartsAt()) && !now.isAfter(window.getEndsAt()))
+                    .anyMatch(window -> window.getAffectedResourceIds().isEmpty()
+                            || window.getAffectedResourceIds().contains(monitor.getId()));
+        } catch (Exception e) {
+            logger.warn("Failed to evaluate maintenance windows for monitor {}: {}", monitor.getId(), e.getMessage());
+            return false;
+        }
+    }
+
+    private void createIncidentForDowntime(MonitorStatusUpdate update, Monitor monitor, User user) {
+        Incident incident = new Incident();
+        incident.setUserId(user.getId());
+        incident.setTitle("Downtime detected: " + monitor.getUrl());
+        incident.setSeverity("HIGH");
+        incident.setState("INVESTIGATING");
+        incident.getAffectedComponentIds().add(monitor.getId());
+        incident.getUpdates().add(new IncidentUpdate(
+                "INVESTIGATING",
+                "Sentinel detected downtime: " + update.getTriggerReason(),
+                Instant.now()
+        ));
+        incidentRepository.save(incident);
+        logger.info("Auto-created incident for monitor {}", monitor.getId());
     }
 
     /**
@@ -364,6 +416,13 @@ public class MonitorService {
             Monitor monitor = monitorOptional.get();
             monitorStatusRepository.deleteByMonitorId(id);
             monitorRepository.deleteById(id);
+            monitorEventPublisher.publish(new MonitorLifecycleEvent(
+                    "monitor.deleted",
+                    monitor.getId(),
+                    monitor.getUserId(),
+                    monitor.getUrl(),
+                    monitor.getErrorCondition()
+            ));
             postService.sendDeleteRequest(id);
 
             logger.info("Monitor with ID {} has been deleted", id);
@@ -385,6 +444,14 @@ public class MonitorService {
         // Only update the error condition
         if (errorCondition != null) {
             existingMonitor.setErrorCondition(errorCondition);
+
+            monitorEventPublisher.publish(new MonitorLifecycleEvent(
+                    "monitor.updated",
+                    existingMonitor.getId(),
+                    existingMonitor.getUserId(),
+                    existingMonitor.getUrl(),
+                    existingMonitor.getErrorCondition()
+            ));
 
             // Send update to Go server
             postService.updateMonitorErrorCondition(id, errorCondition);

@@ -12,19 +12,26 @@ import jakarta.persistence.Table;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "teams")
-public class Team {
+@Table(name = "status_pages")
+public class StatusPage {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private String teamId;
+    private String id;
     private String userId;
+    private String name;
+    private String slug;
+    private String description;
+    private boolean published = true;
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
-    private List<TeamMember> teamMembers;
+    private List<StatusComponent> components = new ArrayList<>();
+    private Instant createdAt = Instant.now();
 }
